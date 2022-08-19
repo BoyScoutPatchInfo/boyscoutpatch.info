@@ -1,0 +1,160 @@
+<!-- Begin Content -->
+<div id="content">
+<br/>
+
+<div ng-app="myApp" ng-controller="listController" class="bootstrap-styles">
+<div ng-show="unauthorized">
+  Unauthorized.
+</div>
+
+<div ng-show="authorized">
+  <h1>Saved List: "[% list_details.name -%]" ([% list_details.visibility -%])</h1>
+  <div class=savedsearches ng-show="items.length <= 0">
+    You have no items in this list yet. Go to the <a href=/search>completed item search</a> to find items to add to this list.
+  </div>
+  <div ng-show="items.length > 0">
+  <br/><div align=left><button class="btn btn-help btn-sm" ng-click="exportTableToCSV('[% list_details.name -%].csv')">Export list to CSV file</button></div>
+  <br/>
+  <table class="table table-striped table-condensed" align=left>
+    <tr> 
+      <td>Ended</td>
+      <td>Sold</td>
+      <td>Item Title</td>
+      <td>Type</td>
+      <td>Seller</td>
+      <td>Bids</td>
+      <td>$$</td>
+      <td widtd=20px></td>
+    </tr>
+    <tbody ng-repeat="item in items">
+      <tr ng-show="!item.edit">
+        <td>{{ item.endtime * 1000 | date:'MM/dd/yy' }}</td>
+        <td><span ng-show="item.itemsold >= 1"><font color=green><b>yes</b></font></span><span ng-show="item.itemsold == 0"><font color=red>no</font></span><span ng-show="item.itemsold == -1">unkwn</span></td>
+        <td><b><a href="/item/details/{{ item.doc }}" target="{{ item.doc }}">{{ item.title }}</a></b></td>
+        <td><i>{{ formatListingType(item.listingtype) }}</i></td>
+        <td>{{ item.seller }}</td>
+        <td><span ng-show="item.listingtype == 'Auction' || item.listingtype == 'AuctionWithBIN'">{{ item.bidcount }}</span><span ng-hide="item.listingtype == 'Auction' || item.listingtype == 'AuctionWithBIN'">-</span></td>
+        <td>{{ item.currentprice[0] | currency }}</td>
+        <td><a href=# ng-click="item.delete=true" ng-show="!item.delete"><button type="button" class="btn btn-danger btn-sm"><span class="fa fa-trash-o fa-lg"></span> delete</button></a><span ng-show="item.delete">delete?<br/> <a href=# ng-click="delete($index)">Yes</a> / <a href=# ng-click="item.delete=false">No</a></span></td>
+      </tr>
+      <tr ng-show="item.edit" >
+        <td align=right>
+           <nobr><a href=# ng-click="update($index)"><button type="button" class="btn btn-success btn-sm" ng-click="addNew=true"><span class="fa fa-floppy-o"></span></button><a href=# ng-click="item.edit=false"><button type="button" class="btn btn-pt btn-sm" ng-click="addNew=true"><span class="fa fa-times"></span></button></a></nobr>
+        </td>
+        <td><input class="form-control" ng-model="item.name"></td>
+        <td><input class="form-control" ng-model="item.description"></td>
+        <td align=center><select ng-model="item.visibility"><option>private</option><option>public</option><option>member only</option><select></td>
+        <td align=center><font color=silver>field not editble</font></td>
+        <td align=center><input class="form-control" ng-model="item.patchvault_uuid"></td>
+        <td><a href=# ng-click="item.delete=true" ng-show="!item.delete"><button type="button" class="btn btn-danger btn-sm"><span class="fa fa-trash-o fa-lg"></span> delete</button></a><span ng-show="item.delete">delete?<br/> <a href=# ng-click="delete($index)">Yes</a> / <a href=# ng-click="item.delete=false">No</a></span></td>
+      </tr>
+    <tbody>
+  </table>
+</div>
+</div>
+<script>
+/*
+*  controller makes initial call to populate table, remains static after that
+*/
+
+function getBaseURL() {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    var baseURL = url.substring(0, url.indexOf('/', 14));
+    if (baseURL.indexOf('http://localhost') != -1) {
+        // Base Url for localhost
+        var url = location.href;  // window.location.href;
+        var pathname = location.pathname;  // window.location.pathname;
+        var index1 = url.indexOf(pathname);
+        var index2 = url.indexOf("/", index1 + 1);
+        var baseLocalUrl = url.substr(0, index2);
+        return baseLocalUrl + "/";
+    }
+    else {
+        // Root Url for domain name
+        return baseURL + "/";
+    }
+}
+
+var myApp=angular.module('myApp',[]);
+
+myApp.controller('listController', ['$scope', '$http', function ($scope, $http) {
+
+    var apiBaseUrl = getBaseURL(); 
+    var bucket_id = "[% bucket_id -%]";
+
+    $http({
+        method: 'GET',
+        url: apiBaseUrl+'api/itembucket/'+bucket_id+'/items'
+    }).success(function(response) {
+        $scope.items=response;
+        $scope.authorized=true;
+    }).error(function(data, status, headers, config) {
+        if ( status=='401' ) {
+          $scope.authorized=false;
+        }
+    });
+
+    $scope.delete=function(idx) { 
+      var item=$scope.items[idx];
+      var itemsToDelete = {
+        "items" : [ item.doc ], // can support multiple deletions by adding more itemids here
+      };
+      $http({
+        headers: {'Content-Type': 'application/json'},
+        method: 'DELETE',
+        url: apiBaseUrl+'api/itembucket/'+bucket_id+'/items',
+        data: itemsToDelete, 
+      }).success(function (response) {
+        // remove from items list and view
+        $scope.items.splice(idx, 1); 
+      }); 
+    } 
+
+    $scope.formatListingType = function(listingType) {
+      if (listingType == "Auction") {
+        return "Auction";
+      }
+      else if (listingType == "AuctionWithBIN") {
+        return "Auct/BIN";
+      }
+      else if (listingType == "FixedPrice") {
+        return "Fixed";
+      }
+      else if (listingType == "StoreInventory") {
+        return "Store";
+      }
+    };
+
+    $scope.downloadCSV = function(csv, filename) {
+        var csvFile;
+        var downloadLink;
+        // CSV file
+        csvFile = new Blob([csv], {type: "text/csv"});
+        // Download link
+        downloadLink = document.createElement("a");
+        // File name
+        downloadLink.download = filename;
+        // Create a link to the file
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        // Hide download link
+        downloadLink.style.display = "none";
+        // Add the link to DOM
+        document.body.appendChild(downloadLink);
+        // Click download link
+        downloadLink.click();
+    }
+
+    $scope.exportTableToCSV = function (filename) {
+        var csv = [ [ "ebayId", "title", "itemsold", "listingtype", "bidcount", "price", "ended", "seller" ] ];
+        for ( var index in $scope.items ) {
+          var i = $scope.items[index];
+          var row = [];
+          var end   = new Date(1000*i.endtime);
+          var endObject = ('0' + (end.getMonth() + 1)).slice(-2) +'/'+ ('0' + end.getDate()).slice(-2) + "/" + end.getFullYear();
+          row.push(i.doc, i.title.replace(/,/g," "), i.itemsold, i.listingtype, i.bidcount, i.currentprice[0].toFixed(2), endObject, i.seller);
+          csv.push(row);
+        }
+       $scope.downloadCSV(csv.join("\n"), filename);
+    }
+}]);
+</script>

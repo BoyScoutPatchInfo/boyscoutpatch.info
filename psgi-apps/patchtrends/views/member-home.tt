@@ -1,0 +1,60 @@
+[% USE date %]
+<!-- Begin Content -->
+<div id="content">
+<br/>
+
+<div ng-show="authorized">
+  <h1>Account Information</h1>
+  <table class="table  table-striped">
+    <tbody>
+      <tr>
+        <td><b>Username:</b> [% member_info.username %]</td>
+      </tr>
+      <tr>
+        <td><b>Password:</b> ***********
+            <br/>[ <a href=/settings>change</a> ]
+        </td>
+      </tr>
+      <tr>
+        <td><b>Email:</b> [% member_info.email %]
+            <br/>(<i>typically your PayPal email address, used for all communication including alerts and password resets</i>)
+        </td>
+      </tr>
+      <tr>
+        <td><b>PayPal Subscription Id:</b> <font color=green>[% member_info.subscr_id %]</font>
+        </td> 
+      </tr>
+      <tr>
+        <td><b>Next Payment:</b> <font color=red>[% date.format(member_info.expires,'%b %d, %Y') -%]</font>
+            <br/>(if you've cancelled via PayPal, access to the site will cease on this date)
+        </td>
+      </tr>
+      <tr>
+        <td><b>Cancellation Information:</b>
+            <br/>We go through great pains to make sure you know you're signing up for a service that charges you
+            <br/>annually. Please note that your PayPal account will get charged each year on the anniversary of you
+            <br/>joining. To cancel account and avoid being charged for the next year, login to <a href=https://paypal.com target=_blank>PayPal</a> and cancel the payment
+            <br/>subscription ("<b>[% member_info.subscr_id %]</b>") to Patchtrends/BoyScoutPatch.info before the next payment date show in red above.
+            <br/>[ <a href=https://paypal.com target=_blank>cancel subscription</a> ]
+        </td>
+      </tr>
+      <tr>
+        <td><b>Getting Help:</b>
+            <br/>slack chat (preferred), <b><a href=[% slack_invite_link -%] target=_blank>click to join or visit the Slack channel</a></b>
+            <br/><a href=mailto:patchtrends@gmail.com>patchtrends@gmail.com</a> for pressing matters
+        </td>
+      </tr>
+   </tbody>
+ </table>
+</div>
+
+<script>
+/*
+*  controller makes POST to update the password 
+*/
+var myApp=angular.module('myApp',[]);
+
+myApp.controller('listController', ['$scope', '$http', function ($scope, $http) {
+    var baseAPIUrl = "//boyscoutpatch.info";
+}]);
+</script>

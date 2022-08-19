@@ -1,0 +1,413 @@
+<!-- Begin Content --> <script src=/js/simple-search.js?k></script>
+<div id="content">
+  <br/>
+  <div id="fixed-div"><a href=#top><i class="fa fa-angle-double-up"></i>TOP</a></div>
+  <div ng-app="myApp" ng-controller="listController" class="bootstrap-styles">
+    <div ng-show="showSaveItems" align=left class="saveItems-popup">
+      <div align=right><button type="button" class="btn btn-default btn-sm" ng-click="showSaveItems=false; itemsSavedOk=false; itemsSavedNotOk=false"> <span class="glyphicon glyphicon-remove"></span> dismiss</button></div>
+      <div align=center ng-if="!itemsSavedOk && !itemsSavedNotOk">
+        <span ng-if="lists.length > 0">
+          <h3>Select list to save items to:</h3>
+          <select id="selectedList" ng-model="selectedList" ng-options="list.id as list.name for list in lists">
+            <option value="" ng-if="false"></option>
+          </select>
+          <br/>*<i>can be applied multiple times safely.</i>
+          <br/>
+          <br/><button ng-click="doSaveItems()" class="btn btn-help btn-sm"><i class="fa fa-floppy-o"> Save</i></button>
+        </span>
+        <h3 ng-if="!lists || lists.length < 1"><font color=red>You have no lists defined. Create one by going to "the "[ Saved ]" link above.</font></h3>
+      </div>
+      <div align=center ng-if="itemsSavedOk">
+        <h3><font color=green>Items saved!</font></h3>
+        Click dismiss to go back to search.
+      </div>
+      <div align=center ng-if="itemsSavedNotOk">
+        <h3><font color=red>Items not saved!</font></h3>
+        Click dismiss to go back to search, try again later.
+      </div>
+    </div>
+    <div ng-show="showInfo" align=left class="faq info-popup">
+      <div align=right><button type="button" class="btn btn-default btn-sm" ng-click="showInfo=false"> <span class="glyphicon glyphicon-remove"></span> dismiss</button></div>
+      <h3>Search Option Information</b></h3>
+      <ul style="list-style: none;">
+        <li><button class="btn btn-pt btn-sm" style="width:50px"><i class="fa fa-search"></i></button> search on keywords entered into text box</li>
+        <li><button class="btn btn-pt btn-sm" style="width:50px"><i class="fa fa-times"> </i></button> reset all filters and clear keywords</li>
+        <li><button class="btn btn-help btn-sm" style="width:50px"><i class="fa fa-cogs"></i></button> show advanced settings</li>
+      </ul>
+      <p><b>Advanced Settings</b>
+      <ul style="list-style: none;">
+        <li><b>Matching Mode</b> - sets how the keywords are handled; "boolean" allows for boolean expressions; the default is "Any" which matches on any of the keywords entered</li>
+        <li><b>Sold Status</b> <i>new</i> - filter search results for items that have sold, not sold, or with an unknown status. The default is "Any" which returns all.
+        <!-- <li><b>Category</b> - show only results from a specific category default is "All"</li> -->
+        <li><b>Min/Max Bid</b> - show only results with min/max bids; this is option is only available for Auction and Auction and Auction w/BIN Listing Types</li>
+        <li><b>Date From/To</b> - narrows search for items that completed during the specified window of time</li>
+        <li><b>Min/Max Bid Amount</b> - show only results with min/max bid amounts</li>
+        <li><b>Item ID(s)</b> - specifiy one or more items by id - best to reset all other filters</li>
+        <li><b>Seller(s)</b> - specify one or more sellers</li>
+        <li><b>Number of Results</b> - limits the number of results</li>
+        <li><b>Order By</b> - field to sort by; <b>Descending</b> if checked reverses the sorting.</li>
+      <ul>
+      <p/><a href=mailto:patchtrends@gmail.com?subject=Help%20with%20simple%20searching><u><b>Contact us for further assistance</b></u></a> or to suggest improvements to this features.</p>
+    </div style="background-color: white;">
+    <a name=top></a>
+    <br/>
+    <div >
+        <form name=searchForm class="form-horizontal" id=searchForm role="form">
+          <div class=faq>
+            <span class="form-group">
+              <div class="col-md-9">
+                <input class="form-control" ng-model="terms" placeholder="enter search terms">
+              </div>
+              <button ng-click="doSearch()" class="btn btn-pt btn-sm"><i class="fa fa-search"></i></button>
+              <button type=reset ng-click="resetSearch(); doSearchAll()" class="btn btn-pt btn-sm"><i class="fa fa-times"></i></button>
+              <button type="button" class="btn btn-help btn-sm" ng-click="showInfo=true" ng-show="!showAdvanced"><i class="fa fa-info-circle"></i></button>
+            </span>
+            <div class="col-md-9" align=right>
+              <span ng-show="!showAdvanced" align=right>
+                <label for="search.perPage" class="control-label"># Results</label>
+                <select ng-model="search.perPage">
+                  <option>2500</option>
+                  <option>1000</option>
+                  <option>500</option>
+                  <option>250</option>
+                  <option selected>100</option>
+                  <option>50</option>
+                  <option>10</option>
+                </select>
+                <label for="search.orderBy" class="control-label">Order By</label>
+                <select ng-model="search.orderBy">
+                  <option value="date">Date</option>
+                  <option value="bids">Bids Count</option>
+                  <option value="bid amount">Bid Amount</option>
+                  <option value="relevance">Best Match</option>
+                </select>
+                <input type=checkbox ng-model="search.descending" checked/><i>descending</i>
+              </span>
+            </div>
+            <div align=right>
+              <button ng-click="showAdvanced=false"class="btn btn-help btn-sm" ng-show="showAdvanced"><i class="fa fa-times"> hide advanced</i></button>
+              <button ng-click="showAdvanced=true"class="btn btn-help btn-sm" ng-show="!showAdvanced"><i class="fa fa-cogs"> show advanced</i></button>
+            </div>
+            <div ng-show="showAdvanced">
+            <div class="form-group" align=center>
+              <table>
+                <tr><td colspan=2>Click <button type="button" class="btn btn-help btn-sm" ng-click="showInfo=true"><i class="fa fa-info-circle"></i></button> for a description of options.</td></tr>
+                <tr>
+                  <td width="100px"> 
+                    <label for="search.matchMode" class="control-label">Match</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.matchMode" style="width:200px;">
+                      <option value=all>All Words</option>
+                      <option value=any>Any Words</option>
+                      <option value=bool>Boolean Expression</option>
+                    </select> <i ng-show="search.matchMode == 'bool'"><a target=boolean href="https://sphinxsearch.com/docs/current/boolean-syntax.html">..more info</a></i>
+                  </td>
+                </tr>
+                  <td width="100px"> 
+                    <label for="search.soldStatus" class="control-label">Sold Status</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.soldStatus" style="width:200px;">
+                      <option value=any>Any</option>
+                      <option value=unsold>Not Sold Only</option>
+                      <option value=sold>Sold Only</option>
+                      <option value=known>Sold or Unsold</option>
+                      <option value=unknown>Unknown</option>
+                    </select> 
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="search.primaryCategory" class="control-label">Category</label>
+                  </td> 
+                  <td>
+                    <select ng-model="search.primaryCategory" style="width:200px;">
+                      <option selected value="all">All Categories</a>
+                      <option value="Council & Shoulder Patches">Council & Shoulder Patches</option>
+                      <option value="Order of the Arrow Patches">Order of the Arrow Patches</option>
+                      <option value="Neckerchiefs & Slides">Neckerchiefs & Slides</option>
+                      <option value="Postcards & Cards">Postcards & Cards</option>
+                      <option value="Badges & Patches">Badges & Patches</option>
+                      <option value="Jamboree Patches">Jamboree Patches</option>
+                      <option value="Posters & Prints">Posters & Prints</option>
+                      <option value="Flags & Pennants">Flags & Pennants</option>
+                      <option value="Books & Manuals">Books & Manuals</option>
+                      <option value="Camp Patches">Camp Patches</option>
+                      <option value="Mugs & Cups">Mugs & Cups</option>
+                      <option value="Pins">Pins</option>
+                      <option value="Mixed Lots">Mixed Lots</option>
+                      <option value="Equipment">Equipment</option>
+                      <option value="Insignia Patches">Insignia Patches</option>
+                      <option value="Philmont & Hight Adventure">Philmont & Hight Adventure</option>
+                      <option value="Insignia Patches">Insignia Patches</option>
+                      <option value="Other">Other</option>
+                    </select> 
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="search.listingType" class="control-label">Listed as</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.listingType" style="width:200px;">
+                      <option selected value="all">All Listing Types</a>
+                      <option value="Auction">Auction Only</option>
+                      <option value="AuctionWithBIN">Auction + Buy It Now</option>
+                      <option value="BuyItNow">Buy It Now</option>
+                      <option value="BestOffer">Best Offer</option>
+                      <option value="FixedPrice">Fixed Price</option>
+                      <option value="StoreInventory">Store Inventory</option>
+                    </select> 
+                  </td>
+                </tr>
+                <tr ng-show="search.listingType == 'Auction' || search.listingType == 'AuctionWithBIN'" style="background-color:#eee">
+                  <td>
+                    <label for="search.minBidCount" class="control-label">Bid# - from</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.minBidCount">
+                      <option>0</option>
+                      <option selected>1</option>
+                      <option>5</option>
+                      <option>10</option>
+                      <option>25</option>
+                      <option>50</option>
+                      <option>100</option>
+                      <option>500</option>
+                    </select>
+                    <label for="search.maxBidCount" class="control-label">to</label>
+                    <select ng-model="search.maxBidCount">
+                      <option>0</option>
+                      <option>1</option>
+                      <option>5</option>
+                      <option>10</option>
+                      <option>25</option>
+                      <option>50</option>
+                      <option>100</option>
+                      <option selected>500</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign=top>
+                    <label for="search.primaryCategory" class="control-label">Date - from</label>
+                  </td>
+                  <td width="350px">
+                    <input ng-model="search.begin" style="width:80px" placeholder="mm/dd/yyyy">
+                    <span align="full" style="min-width:200px"><label for="search.primaryCategory" class="control-label">to</label> <input ng-model="search.end" style="width:80px" placeholder="mm/dd/yyyy"></span> <a href ng-click="search.begin=null; search.end=null" ng-show="search.begin || search.end">(<i class="fa fa-times"> clear</i>)</a><p/>
+                    <b>From Today:</b><br/>
+                    [<a href ng-click="search.begin=days_before_today(7); search.end=today()">1wk</a> ::
+                    <a href ng-click="search.begin=first_of_month(); search.end=today()">mtd</a> ::
+                    <a href ng-click="search.begin=first_of_year(); search.end=today()">ytd</a> ::
+                    <a href ng-click="search.begin=days_before_today(30); search.end=today()">30d</a> ::
+                    <a href ng-click="search.begin=days_before_today(90); search.end=today()">90d</a> ::
+                    <a href ng-click="search.begin=days_before_today(180); search.end=today()">6m</a> ::
+                    <a href ng-click="search.begin=days_before_today(365); search.end=today()">1y</a> ::
+                    <a href ng-click="search.begin=days_before_today(730); search.end=today()">2y</a> ::
+                    <a href ng-click="search.begin=days_before_today(1095); search.end=today()">3y</a>]
+                    <br/><b>By Year:</b><br/>
+                    [<a href ng-click="search.begin='01/01/2012'; search.end='12/31/2012'">2012</a> ::
+                    <a href ng-click="search.begin='01/01/2013'; search.end='12/31/2013'">2013</a> ::
+                    <a href ng-click="search.begin='01/01/2014'; search.end='12/31/2014'">2014</a> ::
+                    <a href ng-click="search.begin='01/01/2015'; search.end='12/31/2015'">2015</a> ::
+                    <a href ng-click="search.begin='01/01/2016'; search.end='12/31/2016'">2016</a> ::
+                    <a href ng-click="search.begin='01/01/2017'; search.end='12/31/2017'">2017</a>]
+                    <br/>
+                    [<a href ng-click="search.begin='01/01/2018'; search.end='12/31/2018'">2018</a> ::
+                    <a href ng-click="search.begin='01/01/2019'; search.end='12/31/2019'">2019</a> ::
+                    <a href ng-click="search.begin='01/01/2020'; search.end='12/31/2020'">2020</a>]
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label class="control-label">Price - from</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.minBidAmount">
+                      <option value=0>$0</option>
+                      <option value=1>$1</option>
+                      <option value=5>$5</option>
+                      <option value=10>$10</option>
+                      <option value=25>$25</option>
+                      <option value=50>$50</option>
+                      <option value=100>$100</option>
+                      <option value=250>$250</option>
+                      <option value=500>$500</option>
+                      <option value=1000>$1000</option>
+                      <option value=2000>$2000</option>
+                      <option value=5000>$5000</option>
+                      <option value=10000>$10000</option>
+                      <option value=25000>$25000</option>
+                      <option value=50000>$50,000</option>
+                    </select>
+                    <label for="search.maxBidAmount" class="control-label">to</label>
+                    <select ng-model="search.maxBidAmount">
+                      <option value=1>$1</option>
+                      <option value=5>$5</option>
+                      <option value=10>$10</option>
+                      <option value=25>$25</option>
+                      <option value=50>$50</option>
+                      <option value=100>$100</option>
+                      <option value=250>$250</option>
+                      <option value=500>$500</option>
+                      <option value=1000>$1,000</option>
+                      <option value=2000>$2,000</option>
+                      <option value=5000>$5,000</option>
+                      <option value=10000>$10,000</option>
+                      <option value=25000>$25,000</option>
+                      <option value=50000>$50,000</option>
+                      <option selected value=100000>$100,000</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td> 
+                    <label for="search.itemid" class="control-label">Item ID(s)</label>
+                  </td>
+                  <td>
+                    <input ng-model="search.itemid" style="width:200px" placeholder=""/>
+                    <a href ng-click="search.itemid=null" ng-show="search.itemid">(<i class="fa fa-times"> clear</i>)</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td> 
+                    <label for="search.seller" class="control-label">Seller(s)</label>
+                  </td>
+                  <td>
+                    <input ng-model="search.seller" style="width:200px" placeholder=""/>
+                    <a href ng-click="search.seller=null" ng-show="search.seller">(<i class="fa fa-times"> clear</i>)</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="search.perPage" class="control-label"># Results</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.perPage">
+                      <option>5000</option>
+                      <option>2500</option>
+                      <option>1000</option>
+                      <option>500</option>
+                      <option>250</option>
+                      <option selected>100</option>
+                      <option>50</option>
+                      <option>10</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="search.orderBy" class="control-label">Order By</label>
+                  </td>
+                  <td>
+                    <select ng-model="search.orderBy">
+                      <option value="date">Date</option>
+                      <option value="bids">Bids Count</option>
+                      <option value="bid amount">Bid Amount</option>
+                      <option value="relevance">Best Match</option>
+                    </select>
+                    <input type=checkbox ng-model="search.descending" checked/><i>descending</i>
+                  </td>
+                </tr>
+                <tr><td colspan=2></td></tr>
+                <tr>
+                  <td align=right colspan=2>
+                    <button ng-click="doSearch()" class="btn btn-pt btn-sm"><i class="fa fa-search"> Search</i></button>
+                    <button type=reset ng-click="resetSearch(); doSearchAll()" class="btn btn-pt btn-sm"><i class="fa fa-times"> Reset All</i></button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          </div>
+        </form>
+    </div>
+  <div>
+  <h2>
+    Not finding what you need? Need more data?<br/><u><a href=https://www.fiverr.com/patchtrends/create-a-custom-bspi-data-report target=_other>Click here to find out more about our custom data service!</a></u>
+  </h2>
+  <table class="table table-striped table-condensed">
+    <thead>
+      <tr>
+        <th colspan=10 ng-show="items.length">
+          Showing {{ items.length }} items (<a href=#bottom><i class="fa fa-angle-double-down"></i> jump to bottom</a>)
+        </th>
+        <th colspan=10 ng-show="!items.length">
+          {{ message }}
+        </th>
+        <th colspan=10 ng-show="noItems">
+          No items found. Please broaden your search.
+        </th>
+      </tr>
+      <tr><th colspan=10>
+            <button ng-click="checkAll()" class="btn btn-pt btn-sm"><i class="fa fa-check-square-o"></i> Select All</button>
+            <button ng-click="uncheckAll()" class="btn btn-pt btn-sm"><i class="fa fa-times"></i> Deselect All</button>
+            <button ng-click="loadChecked()" class="btn btn-pt btn-sm"><i class="fa fa-file-image-o"></i> Show Selected</button>
+            <button ng-click="hideAll();" class="btn btn-pt btn-sm"><i class="fa fa-times"></i> Hide Selected</button>
+            <button ng-click="saveAll();" class="btn btn-help btn-sm"><i class="fa fa-floppy-o"></i> Save Selected</button>
+      </th></tr>
+      <tr> 
+        <td></td>
+        <td></td>
+        <td>Ended</td>
+        <td>Sold</td>
+        <td>Title</td>
+        <td></td>
+        <td>Type</td>
+        <td>Seller</td>
+        <td>Bids</td>
+        <td>$$</td>
+      </tr>
+    </thead>
+    <tbody ng-repeat="item in items">
+      <tr ng-show="!item.showthumb" >
+        <td><input type=checkbox ng-model="item.checked"></td>
+        <td valign=top align=left>
+          <a href ng-click="show(item)" ng-show="!item.showthumb || item.showthumb==false"><i class="fa fa-plus"></i></a>
+        </td>
+        <td>{{ item.endtime * 1000 | date:'MM/dd/yy' }}</td>
+        <td><span ng-show="item.itemsold >= 1"><font color=green><b>yes</b></font></span><span ng-show="item.itemsold == 0"><font color=red>no</font></span><span ng-show="item.itemsold == -1">unkwn</span></td>
+        <td><b><a href="{{ baseUrl }}item/details/{{ item.doc }}" target="{{ item.doc }}">{{ item.title }}</a></b></td>
+        <td><span ng-show="item.is_bin == 1"><b style="color:green">BIN</b></span><span ng-show="item.bestoffer == 1"><b style="color:blue">BO</b></span><span ng-show="item.is_bin != 1 && item.bestoffer != 1">-</span></td>
+        <td><i>{{ formatListingType(item.listingtype) }}</i></td>
+        <td><span ng-show="item.seller"><a href="#top" ng-click="add_seller(item.seller)"><i class="fa fa-search"></i> <a href="/ebay/s/{{ item.seller || -1 }}" target={{ item.doc }}><i class="fa fa-envelope" aria-hidden="true"></i> {{item.seller}}</a></span><span ng-show="!item.seller">unknown</span></td>
+        <td><span ng-show="item.listingtype == 'Auction' || item.listingtype == 'AuctionWithBIN'">{{ item.bidcount }}</span><span ng-hide="item.listingtype == 'Auction' || item.listingtype == 'AuctionWithBIN'">-</span></td>
+        <td>{{ item.currentprice[0] | currency }}</td>
+      </tr>
+      <tr ng-show="item.showthumb==true">
+        <td colspan=10 align=left>
+          <input type=checkbox ng-model="item.checked"> <a href ng-click="hide(item)" ng-show="item.showthumb==true"><i class="fa fa-times"></i><br/></a>
+          <table class="table table-striped table-condensed">
+            <tr><td align=center valign=top width=200px>
+              <p/><a href="{{ baseUrl }}item/details/{{ item.doc }}" target="{{item.doc}}"><img ng-if="item.showthumb" ng-src="//{{imageBaseUrl}}item/image/sm/{{item.doc}}/1" ng-show="item.showthumb==true" alt="{{item.title}}" ng-onerror="randomWaitReload(this);"></a>
+              <br/><br/><font size=7 color=green>
+              {{ item.currentprice[0] | currency }}
+              <p/><span ng-show="item.listingtype == 'Auction' || item.listingtype == 'AuctionWithBIN'">{{ item.bidcount }} Bid<span ng-show="item.bidcount != 1">s</span></span>
+              </font>
+            </td>
+            <td>&nbsp;&nbsp;</td>
+            <td valign=top align=left>
+              <table>
+                <tr><td colspan=2><a href="{{ baseUrl }}item/details/{{ item.doc }}" target="{{ item.doc }}"><font size=4 color=black>{{ item.title }}</a></font></td></tr>
+                <tr><td width="125px">eBay Id:</td><td> <a href="/ebay/{{ item.doc }}" target="{{ item.doc }}">{{ item.doc }} <i class="fa fa-external-link" aria-hidden="true"></i></a> (<i>eBay listing page may expire</i>)</td></tr>
+                <tr><td>Category:</td><td>{{ item.primarycategory }}</td></tr>
+                <tr><td>Seller:</td><td> <span ng-show="item.seller"><a href="javascript:void(0);" ng-click="add_seller(item.seller)"><i class="fa fa-search"></i> <a href="/ebay/s/{{ item.seller || -1 }}" target={{ item.doc }}><i class="fa fa-envelope" aria-hidden="true"></i> {{item.seller}}</a></span><span ng-show="!item.seller">unknown</span></td>
+                <tr><td>Started:</td><td> {{ item.starttime * 1000 | date:'MM/dd/yy' }}</td></tr>
+                <tr><td>Ended:</td><td> {{ item.endtime * 1000 | date:'MM/dd/yy' }}</td></tr>
+                <tr><td>Type:</td><td> {{ formatListingType(item.listingtype) }}</td></tr>
+                <tr><td>Sold:</td><td><span ng-show="item.itemsold >= 1"><font color=green><b>yes</b></font></span><span ng-show="item.itemsold == 0"><font color=red>no</font></span><span ng-show="item.itemsold == -1">unkwn</span></td></tr>
+                <tr><td>Buy It Now:</td><td><span ng-show="item.is_bin">yes</span><span ng-show="!item.is_bin">no</span></td></tr>
+                <tr><td>Best Offer:</td><td><span ng-show="item.bestoffer">yes</span><span ng-show="!item.bestoffer">no</span></td></tr>
+                <tr ng-hide="! item.postalcode || item.postalcode == 0"><td>Postal Code:</td><td> <a href="https://www.google.com/maps/place/+{{ item.postalcode }}" target=_zip>{{ item.postalcode }} <i class="fa fa-external-link" aria-hidden="true">map it</a></i></td></tr>
+                <tr><td>Share URL:</td><td><b><a href="{{ baseUrl }}item/details/{{ item.doc }}" target="{{ item.doc }}">{{ baseUrl }}item/details/{{ item.doc }} <i class="fa fa-external-link" aria-hidden="true"></a></b></td></tr>
+              </table>
+            </td></tr></table>
+        </td>
+      </tr> 
+    </tbody>
+  </table>
+</div>
+    </div>
+</div>
+<a name=bottom></a>

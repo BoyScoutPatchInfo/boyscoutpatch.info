@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,target-densitydpi=device-dpi, user-scalable=no" />
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="/favicon.ico">
+
+<title>The Online Boy Scout Patch and Memorabilia Price Database and ebay Archive</title>
+<meta property="og:description" content="The leading destination for Boy Scout patch and collectible enthusiasts. Organize and price your collections as we offer instant access to the world's leading Boy Scout patch and collectibles databases, including Order of the Arrow first flaps, Council, Jamboree, knives, and vintage equipment. This site is the internet's largest collection of Boy Scout patch, collectible, and memorabilia data. A price guide based upon actual prices realized is available through a nominal annual subscription.">
+<meta name="keywords" content="patch collecting, BSA, patches, OA, OA flap, lodge, lodge flaps, flaps, insignia, images, Boy Scouts of America, Order of the Arrow, camping, hiking, collecting, outdoors, boy scout price guide database">
+<meta property="og:title" content="Boy Scout Price and Memorabilia Guide Subscriptions, Values, Trading, Organize, and more!" />
+<meta property="og:description" content="The leading destination for Boy Scout patch and collectible enthusiasts. Organize and price your collections as we offer instant access to the world's leading Boy Scout patch and collectibles databases, including Order of the Arrow first flaps, Council, Jamboree, knives, and vintage equipment." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://www.patchtrends.com/images/plot-header.png"/>
+<meta property="og:url" content="https://www.patchtrends.com/cgi-bin/index"/>
+<meta property="og:site_name" content="BoyScoutPatch.info" />
+
+<!-- Bootstrap core CSS -->
+<link href="/css/bootstrap.min.css?77679790588977" rel="stylesheet">
+
+<!-- fontawesome -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+
+<script src="/js/angular/1.2.32/angular.min.js"></script>
+
+<link rel="stylesheet" href="/css/magnific-popup.css">
+</head>
+
+<body>
+  <div class="container">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div ng-app="myApp" ng-controller="listController" class="bootstrap-styles" style="text-align:center">
+        <form id="login_form" name="login_form" class="navbar-form navbar-right">
+          <div class="form-group">
+            <input type="text" ng-model="username" placeholder="Username" class="form-control">
+            <input type="password" ng-model="password" placeholder="Password" class="form-control">
+          </div>
+          <button ng-click="doLogin()" class="btn btn-info">Login</button>
+          <a class="btn btn-success" href="#join" role="button">Join!</a>
+          <a class="btn btn-danger" href="/reset" role="button">Reset</a>
+          &nbsp;
+          <input type="hidden" name="rm" value="login" />
+        </form>
+      </div>
+      <div class="navbar-header">
+        <ul class="navbar-brand"></ul>
+      </div>
+    </nav>
+  </div>
+  <br/>
+  <br/>
+  <br/>
+  <div class="logo">
+    <h1>The Online Boy Scout Patch Database and eBay Archive</h1>
+    <br/>
+  </div>
+  <div class="col-md-4">
+    <h3>Joining is Easy and <i>Thrifty</i>!</h3>
+    <b><font color=green>Ready to sign up? Fill out the form below and start your subscription today!</font></b>
+    <a name=join></a>
+    <span ng-app="myApp" ng-controller="validateController">
+      <form id="myForm" action="https://www.paypal.com/cgi-bin/webscr" method="post" name="myForm">
+        <input type="hidden" name="cmd" value="_s-xclick">
+        <input type="hidden" name="hosted_button_id" value="9QHQPSQ2Q6MBW">
+        <input type="hidden" name="on0" value="Subscription Options">
+        <input type="hidden" name="on3" value="Desired Username">
+        <input type="hidden" name="currency_code" value="USD">
+        <input type="hidden" name="os0"  value="Individual - Year">
+        <div class="form-group">
+          <i>Step 1. Choose a Username</i><p/>
+          <input type="text" name="os3" ng-model="os3" class="form-control" placeholder="Enter in desired username" required>
+        </div>
+        <div align=center>
+          <div align=left>
+            <i>Step 2. Agree to Terms:</i>
+            <br/>
+            <input type=checkbox required> I <i>understand</i> that <b>I will be emailed login info to the email address registered with PayPal</b>.
+            <br/>
+            <input type=checkbox required> I <i>understand</i> I will be <b>billed $5.95 annually until I cancel my subscription via PayPal</b>.
+            <br/>
+            <input type=checkbox required> I shall conduct myself <b>according to the Scout Oath and Law at all times while using this subscription</b>.
+          </div>
+          <br/>
+          <button class="btn btn-info">Subscribe for $5.95/year</button>
+          <br/>
+          <img src="https://www.paypalobjects.com/webstatic/mktg/logos/AM_mc_vs_dc_ae.jpg" width=100px alt="Online Boy Scout Patch, Collectible, Memorabilia Online Price Database and Guide" class="img-responsive">
+        </form>
+      </span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <p>BoyScoutPatch.info is <i>the</i> premiere pricing database and eBay archive specializing in Scouting Collectibles, with <b>millions</b> of online transactions archived since 2012. Others may try, but only <i>BSPi</i> is dedicated <b>solely</b> to Boy Scouts and Scouting BSA collectibles.
+    <h3>What You Get for $5.95/yr</h3>
+    <ul>
+      <li>Search <b>millions</b> <i>past</i> eBay listings</li>
+      <li>Mobile friendly (great for TORs!)</li>
+      <li>Email alerts for completed and active items</li>
+      <li>"Save" lists to track items of interest</li>
+      <li>Details on linked and related items</li>
+    </ul>
+    <p><b>Who should use this site?</b> <i>Everyone</i>. Casual collectors and <b>eBay</b>ers, serious buyers and sellers, collection appraisers for insurance or estate liquidation - the list is long. BoyScoutPatch.info is also a platform invaluable for item identification and research.
+  </div>
+  <div class="col-md-4">
+    <p><b>We are</b> Scout patch collectors, bound to Scouting's time tested values and ethics. Just like you!</p>
+    <h4>Questions? need Help Joining?</h4><small><a href=mailto:patchtrends@gmail.com"><u>Send Us an Email!</u></a> (ISCA #7888)</small>
+  </div>
+    <img src="/images/Guarantee-Money_Back.gif" alt="Online Boy Scout Patch, Collectible, Memorabilia Online Price Database and Guide" class="img-responsive">
+  </div>
+</div>
+<div class="col-md-4">
+  <br/>
+  <p>&copy; <a href=https://acutisdata.com/ target=_other>Acutis Computing and Data Consultancy, LLC</a> 2021-2022, Patchtrends.com 2012-2020, BoyScoutPatch.info 2012-2020</p>
+</div>
+<script>
+
+/*
+*  controller makes POST to update the password 
+*/
+
+function getBaseURL() {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    var baseURL = url.substring(0, url.indexOf('/', 14));
+    if (baseURL.indexOf('http://localhost') != -1) {
+        // Base Url for localhost
+        var url = location.href;  // window.location.href;
+        var pathname = location.pathname;  // window.location.pathname;
+        var index1 = url.indexOf(pathname);
+        var index2 = url.indexOf("/", index1 + 1);
+        var baseLocalUrl = url.substr(0, index2);
+        return baseLocalUrl + "/";
+    }
+    else {
+        // Root Url for domain name
+        return baseURL + "/";
+    }
+}
+
+/*
+* Handle login form as an angular app for POST'ing JSON
+*/
+var myApp=angular.module('myApp',[]);
+myApp.controller('validateController', ['$scope', '$http', function ($scope, $http) {
+  $scope.doSubscribe=function() {
+    console.log('foo');
+  }
+}]);
+
+myApp.controller('listController', ['$scope', '$http', function ($scope, $http) {
+    var baseAPIUrl = getBaseURL(); 
+    // update existing item to server
+    $scope.doLogin=function() { 
+      var data = { username:$scope.username, password:$scope.password };
+      $http({
+        method: 'POST',
+        url: baseAPIUrl+'login',
+        headers: {'Content-Type': 'application/json'},
+        data: data 
+      }).success(function (response) {
+          window.location.replace(baseAPIUrl + 'search');
+      }).error(function (response) {
+          $scope.serverResponse = "Update Failed: " + response.message;
+          $scope.serverResponseColor = "red";
+      }); 
+    }; 
+}]);
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!-- Begin Content -->
+<div id="content">
+<br/>
+<h1 id=status>Settings</h1>
+<div ng-app="myApp" ng-controller="listController" class="bootstrap-styles" style="text-align:center">
+  <div id=serverResponse align=center><font color="{{serverResponseColor}}"><b>{{ serverResponse }}</b></font></div>
+  <div style="display: inline-block; text-align: left" ng-show="serverResponseColor != 'green'">
+   <form>
+    <div class="form-group">
+        <label for="currentPassword">Current Password</label>
+        <font color=red>{{ currentPasswordNotSet }}</font>
+        <input type="password" class="form-control" ng-model="currentPassword" id="currentPassword" placeholder="Current Password" style="width:300px">
+    </div>
+    <div class="form-group">
+        <label for="newPassword1">New Password</label>
+        <font color=red>{{ newPassword1NotSet }}</font>
+        <input type="password" class="form-control" ng-model="newPassword1" id="newPassword1" placeholder="New Password" style="width:300px">
+    </div>
+    <div class="form-group">
+        <label for="newPassword2">Verify New Password</label>
+        <font color=red>{{ newPassword2NotSet }}</font>
+        <input type="password" class="form-control" ng-model="newPassword2" id="newPassword2" placeholder="Verify New Password" style="width:300px">
+    </div>
+    <button ng-click="update()" class="btn btn-primary">Submit</button>
+  </form>
+  </div>
+</div>
+</div>
+<script>
+/*
+*  controller makes POST to update the password 
+*/
+
+function getBaseURL() {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    var baseURL = url.substring(0, url.indexOf('/', 14));
+    if (baseURL.indexOf('http://localhost') != -1) {
+        // Base Url for localhost
+        var url = location.href;  // window.location.href;
+        var pathname = location.pathname;  // window.location.pathname;
+        var index1 = url.indexOf(pathname);
+        var index2 = url.indexOf("/", index1 + 1);
+        var baseLocalUrl = url.substr(0, index2);
+        return baseLocalUrl + "/";
+    }
+    else {
+        // Root Url for domain name
+        return baseURL + "/";
+    }
+}
+
+var myApp=angular.module('myApp',[]);
+
+myApp.controller('listController', ['$scope', '$http', function ($scope, $http) {
+
+    var baseAPIUrl = getBaseURL(); 
+
+    $scope._valid = function() {
+      var ret = true;
+      $scope.currentPasswordNotSet = '';
+      $scope.newPassword1NotSet = '';
+      $scope.newPassword2NotSet = '';
+      if (!$scope.currentPassword) {
+        $scope.currentPasswordNotSet = 'required';
+        ret = false;
+      }
+      if (!$scope.newPassword1) {
+        $scope.newPassword1NotSet = 'required';
+        ret = false;
+      }
+      if ($scope.newPassword1 != $scope.newPassword2) {
+        $scope.newPassword2NotSet = 'required, must match';
+        ret = false;
+      }
+      return ret;
+    };
+
+    // update existing item to server
+    $scope.update=function() { 
+      if (!$scope._valid()) {
+        return false;
+      }
+      var data = {
+        currentPassword:$scope.currentPassword, 
+        newPassword1:$scope.newPassword1,
+        newPassword2:$scope.newPassword2
+      };
+        
+      $http({
+        method: 'POST',
+        url: baseAPIUrl+'api/member/update',
+        headers: {'Content-Type': 'application/json'},
+        data: data 
+      }).success(function (response) {
+          $scope.serverResponse = "Update successful. Password will take effect on next log in." 
+          $scope.serverResponseColor = "green";
+      }).error(function (response) {
+          $scope.serverResponse = "Update Failed: " + response.message;
+          $scope.serverResponseColor = "red";
+      }); 
+    }; 
+
+}]);
+</script>

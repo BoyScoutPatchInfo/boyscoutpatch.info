@@ -1,0 +1,180 @@
+[% USE date(format = '%a %m/%d/%Y %H:%M:%S') %]
+<html>
+  <head>
+    <title>[% item.title | html -%] ([% item.itemid | html -%]) ~ Patchtrends.com ~ The Online Boy Scout Patch and Memorabilia Price Database and eBay Archive</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <link rel="stylesheet" href="/bootstrap/3.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/fontawesome/4.2.0/css/font-awesome.min.css" />
+    <script>
+      function getBaseURL() {
+        var url = location.href;  // entire url including querystring - also: window.location.href;
+        var baseURL = url.substring(0, url.indexOf('/', 14));
+        if (baseURL.indexOf('http://localhost') != -1) {
+            // Base Url for localhost
+            var url = location.href;  // window.location.href;
+            var pathname = location.pathname;  // window.location.pathname;
+            var index1 = url.indexOf(pathname);
+            var index2 = url.indexOf("/", index1 + 1);
+            var baseLocalUrl = url.substr(0, index2);
+            return baseLocalUrl + "/";
+        }
+        else {
+            baseURL= baseURL.replace(/https:\/\//, '');
+            // Root Url for domain name
+            return baseURL + "/";
+        }
+      }
+      var baseUrl = getBaseURL();
+      var tld = baseUrl.split('.');
+      var imageBaseUrl = "images." + tld[tld.length-2] + "." + tld[tld.length-1];
+      var src = "//" + imageBaseUrl + "item/image/[% item.itemid | html -%]";
+      var shareUrl = "https://" + baseUrl + "item/details/[% item.itemid | html -%]";
+      var imageArray = [];
+[% FOREACH route in image_ref.routes -%]
+      imageArray.push("https://images.boyscoutpatch.info/item/image[% route %]");
+[% END -%]
+    </script>
+  </head>
+  <body>
+  <a name="top"></a>
+  <div id="fixed-div">
+    <a href=#top><i class="fa fa-angle-double-up"></i>TOP</a>
+    [% IF similar_completed.size > 0 -%]<a href=#completed><i class="fa fa-angle-double-up"></i>Completed</a>[% END -%]
+    [% IF history.size > 0 -%]<a href=#bidhistory><i class="fa fa-angle-double-up"></i>Bid History</a>[% END -%]
+  </div>
+  <div id="wrapper">
+  <div id="content">
+  <div id="top_nav">
+    <ul>
+    [% IF member.username -%]
+    <li><a href=/><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    [% ELSE -%]
+    <li><a href=/><b> Login</b></a></li>
+    <li><a href=/><i class="fa fa-user-plus" aria-hidden="true"></i><b> Join!</b></a></li>
+    [% END -%]
+    <li><a href=/search><span class="glyphicon glyphicon-search"></span> Completed Items Search</a></li>
+    <li><a href=/bazaar><span class="glyphicon glyphicon-shopping-cart"></span> Auction Research Tool</a></li>
+    [% IF member.username -%]
+    <li><a href=/alerts><span class="glyphicon glyphicon-bell"></span> Alerts</a></li>
+    <li><a href=/settings><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+    <li><a href=/logout>Logout <span class="glyphicon glyphicon-log-out"></span></a></li>
+    [% END -%]
+    </ul>
+  </div>   
+  <br/>
+  <div align=center>
+    <h1>[% item.title | html -%]</h1>
+    <span>[% IF item.itemsold == 1 -%]<font size=5 color=green><b>Listing Over. Item Sold</b></font>[% ELSIF item.itemsold == 0 -%]<font size=5 color=red>Listing Over. Item Not Sold.</font>[% ELSIF item.itemsold == -1 -%]<font size=5>Listing Over. Final Status Unknown[% END -%]</span>
+    <table class="table" width=840>
+      <tr>
+        <td valign=top align=center>
+            <p/> <p/>
+            <span id="itemTitle"></span>
+            <p/>
+[% IF image_ref.count > 1 %]
+            <a href="#" onclick="imageSwap(currentImageFocus-1, [% image_ref.count -%])"><button id="imgButton[% REALCOUNT -%]" type="button" class="btn btn-default btn-lg">&lt;prev</button></a>
+[% REALCOUNT = 0 -%]
+[% COUNT = 1     -%]
+[% FOREACH route in image_ref.routes %]
+              <a href="#" onclick="imageSwap([% REALCOUNT %], [% image_ref.count -%])"><button id="imgButton[% REALCOUNT -%]" type="button" class="btn btn-default btn-lg">[% COUNT -%]</button></a>
+[% REALCOUNT = REALCOUNT + 1 -%]
+[% COUNT = COUNT + 1 -%]
+[% END %]
+            <a href="#" onclick="imageSwap(currentImageFocus+1, [% image_ref.count -%])"><button id="imgButton[% REALCOUNT -%]" type="button" class="btn btn-default btn-lg">next&gt;</button></a>
+[% END %]
+[% IF image_ref.count > 0 %]
+            <p/>
+            <a id="itemImgHref" target=_blank href=""><img id="itemImg" display="none" src="/images/empty.jpg" width="640" alt="loading..." /></a>
+[% ELSE %]
+            <p/>
+            No images found, sad panda :(
+[% END %]
+            <p/> <p/>
+	    <a href="/ebay/[% item.itemid | uri %]"><button type="button" class="btn btn-success">View Listing</button></a>
+	    <a href="/ebay/s/[% item.seller || -1 %]"><button type="button" class="btn btn-info">Contact Seller</button></a>
+	    [% IF history.size > 0 -%]<a href="#bidhistory"><button type="button" class="btn btn-success">View Bid History</button></a>[% END -%]
+	    [% IF similar_completed.size > 0 -%]<a href="#completed"><button type="button" class="btn btn-success">View Similar</button></a>[% END -%]
+            <p/>
+            <table class="table table-bordered table-striped">
+              <tr><td colspan=4><b>Item Details</b></td></tr> 
+              [% IF item.rating == 1 -%]
+              <tr><td>Deal Rating</td><td><span class="label label-success">good deal**</span></td></tr>
+              [% ELSIF item.rating == 2 -%]
+              <tr><td>Deal Rating</td><td><span class="label label-info">okay deal**</span></td></tr>
+              [% END -%]
+              <tr><td width="125px">eBay Id:</td><td colspan=3> <a href="../../../ebay/[% item.doc | uri %]">[% item.doc %]<i class="fa fa-external-link" aria-hidden="true"></i></a></td></tr>
+              <tr><td>Last Price:</td><td colspan=3>$[% item.currentprice.0 | format('%.2f') %]</td></tr>
+              [% IF item.listingtype == "Auction" -%]
+              <tr><td>Final Bid Count:</td><td colspan=3>[% item.bidcount | html %]</td></tr>
+              <tr><td>Listing Type:</td><td colspan=3>Auction Only</td></tr>
+              [% ELSIF item.listingtype == "AuctionWithBIN" -%]
+              <tr><td>Final Bid Count:</td><td>[% item.bidcount | html %]</td></tr>
+              <tr><td>Listing Type:</td><td colspan=3>Auction with Buy It Now</td></tr>
+              [% ELSIF item.listingtype == "FixedPrice" -%]
+              <tr><td>Listing Type:</td><td colspan=3>Fixed Price</td></tr>
+              [% ELSIF item.listingtype == "StoreInventory" -%]
+              <tr><td>Listing Type:</td><td colspan=3>Store Inventory</td></tr>
+              [% END -%]
+              <tr><td>Category:</td><td colspan=3>[% item.primarycategory %]</td></tr>
+              <tr><td>Seller:</td><td colspan=3> <a href="../../../ebay/s/[% item.seller || -1 %]">[% item.seller %]</a></td>
+              <tr><td>Started:</td><td colspan=3> [% date.format(item.starttime) %]</td></tr>
+              <tr><td>End:</td><td colspan=3> [% date.format(item.endtime) %]</td></tr>
+              [% IF item.postalcode -%]<tr><td>Postal Code:</td><td colspan=3> <a href="https://www.google.com/maps/place/+[% item.postalcode %]" target=_zip>[% item.postalcode %] <i class="fa fa-external-link" aria-hidden="true">map it</i></a></td></tr>[% END -%]
+              <tr>
+                <td>Share URL</td>
+                <td colspan=3><span id=shareUrl></span></td>
+              </tr>
+              [% IF history.size > 0 -%]
+              <tr><td colspan=4><a name="bidhistory"></a><b>Bid History</b> (sampling frequency varies)</td></tr> 
+              [% END -%]
+              [% FOREACH record IN history -%]
+              <tr><td>[% date.format(record.added) -%]</td><td>$[% record.price | format('%.2f') -%], [% record.bids -%] bid[% IF record.bids != 1 -%]s[% END -%]</td></tr> 
+              [% END -%] 
+              [% IF similar_completed.size > 0 -%]
+              <tr><td align=center colspan=4> <a name="completed"></a> <a href=#top><button type="button" class="btn btn-default btn-sm"><i class="fa fa-angle-double-up"></i>jump to top</button></a> <h2>Similar Sold Items</h2> </td> </tr> 
+              <tr><td align=right colspan=4><i>*ordered by best title matches</i></td></tr>
+              <tr><th>Date Sold</th><th>Sold For</th><th>Bids</th><th>Item Sold (click for item detail page)</th></tr>
+              [% END -%]
+              [% FOREACH record IN similar_completed -%]
+              <tr><td>[% date.format(record.endtime, '%b %d, %Y') -%]</td><td>$[% record.currentprice.0 | format('%.2f') -%]</td><td align=center>[% IF record.listingtype == 'Auction' || record.listingtype == 'AuctionWithBIN' -%][% record.bidcount -%][% ELSE -%]<font color=grey>-</font>[% END -%]</td><td><a href="/item/details/[% record.itemid -%]"><i class="fa fa-external-link" aria-hidden="true"></i> <i>[% record.title -%]</i></a></td></tr>
+              [% END -%] 
+            </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+  </div>
+  </div>
+  <script>
+    var currentImageFocus = 0;
+    var imageSwap = function(index, total) {
+      // bound checking for index
+      if (index > total - 1) {
+        index=0;
+      }
+      else if (index < 0) {
+        index=total-1;
+      }
+      if (total > 1) {
+        // reset class of button about to be replaced 
+        document.getElementById("imgButton" + currentImageFocus).className = 'btn btn-default btn-lg';
+      }
+      var d=new Date();
+      document.getElementById("itemImg").src = imageArray[index] + "?m=" + d.getTime();
+      document.getElementById("itemImg").display = 'block';
+      // update external link to image url (clicking on the image will bring up a new tab with the full sized image)
+      document.getElementById("itemImgHref").href = imageArray[index];
+      if (total > 1) {
+        // update class of current button
+        document.getElementById("imgButton" + index).className = 'btn btn-warning btn-lg';
+        // save current index for next swap
+        currentImageFocus = index;
+        // disable browser from reacting to ahref click
+      }
+      return false;
+    };
+    imageSwap(0, [% image_ref.count -%]); //initial load
+    document.getElementById("shareUrl").innerHTML = shareUrl;
+  </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+[% USE date %]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Boy Scout Patch Values - Never overpay. Never undersell. Know what it's worth. Trust Patchtrends.com.</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=960" id="meta-viewport">
+    <link rel="stylesheet" href="/bootstrap/3.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/fontawesome/4.2.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+    <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      color: #2e2e2e;
+      background: #fff;
+    }
+    </style>
+    <script src="/js/angular/1.2.32/angular.min.js"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!-- Begin Wrapper -->
+<div id="wrapper">
+
+<!-- Begin Header -->
+<div id="header">
+<div id="top_nav">
+  <ul>
+    <li><a href=/search><span class=""></span>[ Search ]</a></li>
+    <li><a href=/saved-items><span class=""></span>[ Saved ]</a></li>
+    <li><a href=/alerts><span class=""></span>[ Alerts ]</a></li>
+    <li><a href=/><span class=""></span>[ Account ]</a></li>
+    <li><a href=/settings><span class=""></span>[ Password ]</a></li>
+    <li><a href=[% slack_invite_link -%] target=_blank><font color=green><b>[ Help ]</b></font></a></li>
+    <li></span><font color=silver>([% member_info.username %], renews by [% date.format(member_info.expires,'%b %d, %Y') -%])</font></li>
+    <li><a href=/logout><font color=orange>[ Logout ]</font><span class=""></span></a></li>
+  </ul>
+</div>   
+</div>
+<!-- End Header -->
+
+[% content -%]
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!-- Begin Content -->
+<div id="content">
+<br/>
+
+<div ng-app="myApp" ng-controller="listController" class="bootstrap-styles">
+<div ng-show="unauthorized">
+  Unauthorized.
+</div>
+
+<div ng-show="authorized">
+  <h1>Email Alerts</h1>
+  <div align=center>
+    <button type="button" class="btn btn-default btn-sm" ng-click="addNew=true"><div class="glyphicon glyphicon-plus"></div> Custom Search</button>
+    <button type="button" class="btn btn-pt btn-sm" ng-click="create({description:'Ending Soon',sortby:'endingsoonest',search_target:'active',minbid:1,minprice:1,report_window_days:0});"><div class="glyphicon glyphicon-plus"></div> Ending Soon</button>
+    <button type="button" class="btn btn-pt btn-sm" ng-click="create({description:'Newly Listed',sortby:'newest',search_target:'active'});"><div class="glyphicon glyphicon-plus"></div> Newly Listed</button>
+    <button type="button" class="btn btn-pt btn-sm" ng-click="create({description:'Top Active By Bid',sortby:'highbid',search_target:'active'});"><div class="glyphicon glyphicon-plus"></div> Top Active by Bid</button>
+    <button type="button" class="btn btn-pt btn-sm" ng-click="create({description:'Top Active By Price',sortby:'highprice',search_target:'active'});"><div class="glyphicon glyphicon-plus"></div> Top Active by Price</button>
+    <button type="button" class="btn btn-help btn-sm" ng-click="showInfo=true"><i class="fa fa-info-circle"></i></button>
+    <br/>
+    <div class="alert alert-danger alert-dismissible"  role="alert" ng-show="updateError" ng-click="updateError=false">{{ updateError }}</div>
+  </div>
+  <div ng-show="showInfo" align=left class="faq info-popup">
+    <div></div>
+    <p><b>Feature Information</b></p>
+    <p>
+      Search Alerts email reports on a daily or weekly basis, depending on how the search criteria is set. Searches may specifiy keywords or be blank. Blank searches will apply filters over all items.
+    </p>
+    <p>
+      Searches may be set to target:
+     <ul>
+       <li>Active auctions (Patchbazaar.com)</li>
+       <li>Completed auctions (Patchtrends.com)</li>
+       <li>Both</li>
+     </ul> 
+    </p>
+    <p>
+      If there are any results from the search, they will be emailed to the email address on record.
+    </p>
+    <p>
+      Results may be sorted by various means.
+    </p>
+    <p><a href=mailto:patchtrends@gmail.com?subject=Help%20with%20saved%20searches><u><b>We want your feedback!</b></u></a>
+    <a href=mailto:patchtrends@gmail.com?subject=Help%20with%20saved%20searches><u><b>Contact us for further assistance</b></u></a> or to suggest improvements to this features.</p>
+    <div align=center><button type="button" class="btn btn-default btn-sm" ng-click="showInfo=false"> <span class="glyphicon glyphicon-remove"></span> Dismiss</button></div>
+  </div>
+  <div ng-show="addNew" align=left class="faq form-popup">
+  <div align=right><button type="button" class="btn btn-default btn-sm" ng-click="addNew=false"> <span class="glyphicon glyphicon-remove"></span></button></div>
+
+    <form name="addForm" novalidate role="form">
+      <div class="form-group">
+        <label for="item.description">Description</label>
+        <input type="text" class="form-control" placeholder="Enter description" ng-model="item.description">
+      </div>
+      <div class="form-group">
+        <label> <input type=checkbox ng-model="searchAll" ng-true-value="YES" ng-false-value="NO" ng-click="item.search=''"> Apply filter to all items (no search terms) </label>
+      </div>
+      <div class="form-group">
+        <label for="item.search">Search Terms</label>
+        <input type="text" class="form-control" placeholder="Enter search" ng-model="item.search" ng-disabled="searchAll=='YES'">
+      </div>
+      <div class="form-group">
+        <label for="items.sortby">Sort</label>
+        <select ng-options="sortByOpts.value as sortByOpts.label for sortByOpts in sortByOpts" ng-model="item.sortby"><option value="" ng-if="!item.sortby">Choose</option></select>
+        <p/><label>Min/Max Bid</label>
+        <select  ng-options="bid as bid for bid in bids" ng-model="item.minbid"><option value="" ng-if="!item.minbid">?</option></select>/<select ng-options="bid as bid for bid in bids" ng-model="item.maxbid"><option value="" ng-if="!item.maxbid">?</option></select>
+        <p/><label>Min/Max Price</label>
+        <select  ng-options="price.value as price.label for price in prices" ng-model="item.minprice"><option value="" ng-if="!item.minprice">?</option></select>/<select ng-options="price.value as price.label for price in prices" ng-model="item.maxprice"><option value="" ng-if="!item.maxprice">?</option></select>
+        <p/><label for="items.search_target">Search Target</label>
+        <select ng-options="target.value as target.label for target in targets" ng-model="item.search_target"><option value="" ng-if="!item.search_target">Choose</option></select>
+        <p/><label for="items.report_window_days">Report Window</label>
+        <select ng-model="item.report_window_days" ng-options="window.value as window.label for window in windows"><option value="" ng-if="!item.report_window_days">Choose<option></select>
+        <p/><label for="items.frequency">Frequency</label>
+        <select ng-options="freq.value as freq.label for freq in freqs" ng-model="item.frequency"><option value="" ng-if="!item.frequency">Choose</option></select>
+        <label for="items.hour">Hour of Day</label>
+        <select ng-options="hour.value as hour.label for hour in hours" ng-model="item.hour"><option value="" ng-if="!item.hour">Choose</option></select>
+        <span ng-show="item.frequency=='weekly'"><label for="items.day">Day of Week</label><select ng-model="item.day" ng-options="day.value as day.name for day in days"><option value="" ng-if="!item.day">Choose</option></select></span>
+    </div>
+    <div class="form-group" align="center">
+      <button type="button" class="btn btn-default btn-sm" ng-click="create(item)"> <span class="fa fa-floppy-o"></span> Save</button>
+      <button type="button" class="btn btn-default btn-sm" ng-click="addNew=false; createError=null"> <span class="glyphicon glyphicon-remove"></span> Cancel</button>
+    </div>
+  </form>
+    <br/><br/>
+    <div class="alert alert-danger"  role="alert" ng-show="createError" ng-click="createError=false"><a href="#" class="close">&times;</a>{{ createError }}</div>
+  </div>
+
+  <div class=savedsearches ng-show="items.length <= 0">
+    You have no saved searches.  <button type="button" class="btn btn-pt btn-sm" ng-click="create({description:'Top Active By Bid',sortby:'highbid',search_target:'active'});"><div class="glyphicon glyphicon-plus"></div> Add One</button>
+  </div>
+  <div ng-show="items.length > 0">
+  <br/>
+  <table class="table  table-striped">
+    <tr> 
+      <th width=20px> </th>
+      <th>Search Description</th>
+      <th>Search Terms</th>
+      <th>Sort</th>
+      <th>Target</th>
+      <th>Frequency</th>
+      <th>Schedule</th>
+      <th>Window</th>
+      <th width=70px> </th>
+    </tr>
+    <tbody ng-repeat="item in items">
+      <tr ng-show="!item.edit">
+        <td width="10px"><a href=# ng-click="item.edit=true" ng-show="!item.edit"><button type="button" class="btn btn-help btn-sm"><span class="fa fa-pencil-square-o"></span> edit</button></a></td>
+        <td ng-click="item.edit=true">{{ item.description | limitTo:20 }}</td>
+        <td ng-click="item.edit=true">{{ item.search }}</td>
+        <td ng-click="item.edit=true">{{ sortBy[item.sortby] }}</td>
+        <td ng-click="item.edit=true">{{ targetLabels[item.search_target] }}</td>
+        <td ng-click="item.edit=true">{{ item.frequency }}</td>
+        <td ng-click="item.edit=true">{{ hoursInDay[item.hour] }} <span ng-show="item.frequency=='weekly'"> every {{ daysInWeek[item.day] }} </span> <span ng-show="item.frequency=='daily'"> daily</span>
+</td>
+        <td ng-click="item.edit=true">{{ item.report_window_days }}</td>
+        <td><a href=# ng-click="item.delete=true" ng-show="!item.delete"><button type="button" class="btn btn-danger btn-sm"><span class="fa fa-trash-o fa-lg"></span> delete</button></a><span ng-show="item.delete">delete? <a href=# ng-click="delete($index)">Yes</a> / <a href=# ng-click="item.delete=false">No</a></span></td>
+      </tr>
+      <tr ng-show="item.edit">
+        <td colspan=9 align=center> 
+          <table>
+            <tr>
+              <td><b>Description</b></td><td colspan=3><input class="form-control" ng-model="item.description"></td>
+            </tr>
+            <tr>
+              <td><b>Search Terms</b></td><td colspan=3><input class="form-control" ng-model="item.search"></td>
+            </tr>
+            <tr>
+              <td><b>Sort By</b></td><td colspan=3><select class="form-control" ng-options="sortByOpts.value as sortByOpts.label for sortByOpts in sortByOpts" ng-model="item.sortby"></select></td>
+            </tr>
+            <tr>
+              <td><b>Target</b></td><td><select class="form-control" ng-options="target.value as target.label for target in targets" ng-model="item.search_target"></select></td>
+            </tr>
+            <tr>
+              <td><b>Minimum Bids</b> </td><td><select class="form-control" ng-options="bid as bid for bid in bids" ng-model="item.minbid"></select> </td><td><b>Maximum Bids</b> </td><td><select class="form-control" ng-options="bid as bid for bid in bids" ng-model="item.maxbid"></select></td>
+            </tr>
+            <tr>
+              <td><b>Minimum Price</b> </td><td><select class="form-control" ng-options="price.value as price.label for price in prices" ng-model="item.minprice"></select> </td><td><b>Maximum Price</b> </td><td><select class="form-control" ng-options="price.value as price.label for price in prices" ng-model="item.maxprice"></select></td>
+            </tr>
+            <tr>
+              <td><b>Frequency</b></td><td><select class="form-control" ng-model="item.frequency"><option>daily</option><option>weekly</option></select></td><td><b>Send at</b></td><td><select class="form-control" ng-model="item.hour" ng-options="hour.value as hour.label for hour in hours"><option value="{{item.hour}}">{{hoursInDay[item.hour]}}</option></select></td>
+            </tr>
+            <tr ng-show="item.frequency=='weekly'">
+              <td><b>Day of Week</b></td><td colspan=3><span><select class="form-control" ng-model="item.day"><option value="{{item.day}}">{{daysInWeek[item.day]}}</option><option ng-repeat="day in days" value="{{day.value}}">{{day.name}}</option></select>
+</span></td>
+            </tr>
+            <tr>
+              <td><b>Window</d></td><td><select class="form-control" ng-model="item.report_window_days" ng-options="window.value as window.label for window in windows"><option value="" ng-if="!item.report_window_days">Choose<option></select></td>
+            </tr>
+            <tr>
+              <td colspan=4 align=right>
+                <a href=# ng-click="update($index)"><button type="button" class="btn btn-success btn-sm" ng-click="addNew=true"><span class="fa fa-floppy-o"></span> save</button>
+                <a href=# ng-click="item.edit=false"><button type="button" class="btn btn-pt btn-sm" ng-click="addNew=true"><span class="fa fa-times"></span> cancel</button></a>
+              </td>
+            </tr>
+          </table> 
+        </td>
+      </tr>
+    <tbody>
+  </table>
+</div>
+</div>
+<script>
+/*
+*  controller makes initial call to populate table, remains static after that
+*/
+
+function getBaseURL() {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    var baseURL = url.substring(0, url.indexOf('/', 14));
+    if (baseURL.indexOf('http://localhost') != -1) {
+        // Base Url for localhost
+        var url = location.href;  // window.location.href;
+        var pathname = location.pathname;  // window.location.pathname;
+        var index1 = url.indexOf(pathname);
+        var index2 = url.indexOf("/", index1 + 1);
+        var baseLocalUrl = url.substr(0, index2);
+        return baseLocalUrl + "/";
+    }
+    else {
+        // Root Url for domain name
+        return baseURL + "/";
+    }
+}
+
+var myApp=angular.module('myApp',[]);
+
+myApp.controller('listController', ['$scope', '$http', function ($scope, $http) {
+
+    var apiBaseUrl = getBaseURL(); 
+
+    $http.get(apiBaseUrl+'api/alerts/read').success(function(response) {
+        $scope.items=response;
+        $scope.authorized=true;
+    }).error(function(data, status, headers, config) {
+        if ( status=='401' ) {
+          $scope.authorized=false;
+        }
+    });
+
+    // save new item to server
+    $scope.create=function(item) { 
+      $http({
+        method: 'PUT',
+        url: apiBaseUrl+'api/alerts/create',
+        headers: {'Content-Type': 'application/json'},
+        data: item 
+      }).success(function (response) {
+        if (! response.error ) {
+        // add new item as know to the server to the list
+          $scope.items.push(response);
+          $scope.addNew=false; 
+          $scope.createError=false;
+        }
+        else {
+          $scope.createError=response.message;
+        }
+      })
+    };
+
+    // update existing item to server
+    $scope.update=function(idx) { 
+      var item=$scope.items[idx];
+      $http({
+        method: 'POST',
+        url: apiBaseUrl+'api/alerts/update/' + item.id,
+        headers: {'Content-Type': 'application/json'},
+        data: item 
+      }).success(function (response) {
+        if (! response.error) {
+          // update item with server view
+          $scope.items[idx]=response;
+          // hide item edit form
+          item.edit=false;
+        }
+        else {
+          $scope.updateError=response.message;
+          item.edit=false;
+        }
+      }); 
+    }; 
+
+    $scope.delete=function(idx) { 
+      var item=$scope.items[idx];
+      $http({
+        method: 'DELETE',
+        url: apiBaseUrl+'api/alerts/delete/' + item.id,
+      }).success(function (response) {
+        // remove from items list and view
+        $scope.items.splice(idx, 1); 
+      }); 
+    }; 
+
+    // fields for select boxes
+    $scope.searchAll='NO';
+    $scope.sortBy={highbid:'high bid',lowbid:'low bids',highprice:'high price',lowprice:'low price',newest:'newest',endingsoonest:'ending'};
+    $scope.sortByOpts=[{value:'highbid',label:'high bid'},{value:'lowbid',label:'low bid'},{value:'highprice',label:'high price'},{value:'lowprice',label:'low price'},{value:'newest',label:'newest'},{value:'endingsoonest',label:'ending'}];
+    $scope.days  =[{value:'0',name:'Su'},{value:'1',name:'Mo'},{value:'2',name:'Tu'},{value:'3',name:'We'},{value:'4',name:'Th'},{value:'5',name:'Fr'},{value:'6',name:'Sa'}]; 
+    $scope.hours =[{value:'0',label:'12 a'},{value:'1',label:'1 a'},{value:'2',label:'2 a'}, {value:'3',label:'3 a'},{value:'4',label:'4 a'},{value:'5',label:'5 a'},{value:'6',label:'6 a'},{value:'7',label:'7 a'},{value:'8',label:'8 a'},{value:'9',label:'9 a'},{value:'10',label:'10 a'},{value:'11',label:'11 a'},{value:'12',label:'12 p'},{value:'13',label:'1 p'},{value:'14',label:'2 p'},{value:'15',label:'3 p'},{value:'16',label:'4 p'},{value:'17',label:'5 p'},{value:'18',label:'6 p'},{value:'19',label:'7 p'},{value:'20',label:'8 p'},{value:'21',label:'9 p'},{value:'22',label:'10 p'},{value:'23',label:'11 p'} ];
+    $scope.freqs =[{value:'daily',label:'daily'},{value:'weekly',label:'weekly'}];
+    $scope.targets=[{value:'active',label:'active auctions'},{value:'completed',label:'completed'},{value:'completed_and_active',label:'both'}];
+    $scope.targetLabels={active:'active auctions',completed:'completed',completed_and_active:'both'};
+    $scope.windows=[{value:'0',label:'None'}, {value:'10',label:'10 Days'}, {value:'7',label:'7 Days'}, {value:'5',label:'5 Days'},{value:'3',label:'3 Days'}, {value:'1',label:'1 Day'} ]; 
+    $scope.daysInWeek=['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+    $scope.hoursInDay=['12 a', '1 a', '2 a', '3 a', '4 a', '5 a', '6 a', '7 a', '8 a', '9 a', '10 a', '11 a', '12 p', '1 p', '2 p', '3 p', '4 p', '5 p', '6 p', '7 p', '8 p', '9 p', '10 p', '11 p'];
+    $scope.addNew=false;
+    $scope.bids = ['0','1','5','10','25','50','75','100','250','500'];
+    $scope.prices = [{value:'0',label:'$0'},{value:'1',label:'$1'},{value:'5',label:'$5'},{value:'25',label:'$25'},{value:'100',label:'$100'},{value:'500',label:'$500'},{value:'1000',label:'$1k'},{value:'5000',label:'$5k'},{value:'25000',label:'$25k'},{value:'50000',label:'$50k'},{value:'100000',label:'$100k'}];
+}]);
+</script>
